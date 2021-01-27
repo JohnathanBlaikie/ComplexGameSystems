@@ -21,6 +21,7 @@ public class EntitySpawnerScript : MonoBehaviour
 
     [Header("Spawn Parameters")]
     public GameObject entGOPref;
+    public GameObject target;
     public Entity entPref;
 
     //[HideInInspector]
@@ -31,6 +32,9 @@ public class EntitySpawnerScript : MonoBehaviour
 
     public enum SHAPE { NONE, POINT, SQUARE, CUBE, CIRCLE, SPHERE }
     public SHAPE spawnShape;
+
+    public enum HEADING { NEUTRAL, TARGETED, OUTWARD, INWARD}
+    public HEADING heading;
 
     private void OnDrawGizmos()
     {
@@ -72,8 +76,6 @@ public class EntitySpawnerScript : MonoBehaviour
         entPref = GameObjectConversionUtility.ConvertGameObjectHierarchy(entGOPref, settings);
         for (int i = 0; i < maxEntity; i++)
         {
-            UnityEngine.Random random = new UnityEngine.Random();
-            
             Entity myEnt = entMan.Instantiate(entPref);
             //entMan.AddComponentData(myEnt, new Translation { Value = new float3() });
             if (spawnShape == SHAPE.CUBE || spawnShape == SHAPE.SQUARE)
@@ -99,6 +101,35 @@ public class EntitySpawnerScript : MonoBehaviour
     }
             else { }
 
+            switch (heading)
+            {
+                case HEADING.NEUTRAL:
+
+                    break;
+                case HEADING.TARGETED:
+                    //This will spawn the entities ("entGOPref") facing a target object ("target") 
+
+
+                    //entMan.AddComponentData(myEnt, new Rotation { Value = 
+                    //((entGOPref.GetComponent<Rigidbody>().transform.LookAt(target.transform))) });
+                    //entMan.AddComponentData(myent, entGOPref.GetComponent<Rigidbody>().transform.LookAt(target.transform));
+                    entMan.AddComponentData(myEnt, new Rotation {
+                        //Value =
+                        //new Rotation(entGOPref.GetComponent<Rigidbody>().transform.LookAt(target.transform))
+                        //new Rotation(entGOPref.transform.LookAt(target.transform))
+                    });
+                    //entMan.AddChunkComponentData(myEnt, new Transform(entGOPref.transform.LookAt(target.transform)));
+
+                    break;
+                case HEADING.INWARD:
+
+                    break;
+                case HEADING.OUTWARD:
+
+                    break;
+
+            }
+
         }
     }
 
@@ -108,11 +139,14 @@ public class EntitySpawnerScript : MonoBehaviour
 [CustomEditor(typeof(EntitySpawnerScript))]
 public class DynamicInspector : Editor
 {
+    SerializedProperty myShape, myHeading;
     override public void OnInspectorGUI()
     {
         var eSS = target as EntitySpawnerScript;
 
         eSS.isEnabled = EditorGUILayout.Toggle("Enable Spawning:", eSS.isEnabled);
+        myShape = serializedObject.FindProperty("spawnShape");
+        myHeading = serializedObject.FindProperty("heading");
 
         using (var group = new EditorGUILayout.FadeGroupScope(Convert.ToSingle(eSS.isEnabled)))
         {
@@ -126,7 +160,10 @@ public class DynamicInspector : Editor
                 //EditorGUILayout.PropertyField(eSS.entGOPref);
                 //serializedObject.ApplyModifiedProperties();
 
-                eSS.spawnShape = (EntitySpawnerScript.SHAPE)EditorGUILayout.EnumPopup("Spawn Shape:", eSS.spawnShape);
+                //eSS.spawnShape = (EntitySpawnerScript.SHAPE)EditorGUILayout.EnumPopup("Spawn Shape:", eSS.spawnShape);
+                EditorGUILayout.PropertyField(myShape);
+                EditorGUILayout.PropertyField(myHeading);
+                serializedObject.ApplyModifiedProperties();
                 switch (eSS.spawnShape)
                 {
                     case EntitySpawnerScript.SHAPE.NONE:
@@ -150,6 +187,22 @@ public class DynamicInspector : Editor
                         eSS.radius = EditorGUILayout.FloatField("Radius", eSS.radius);
                         //eSS.scale = EditorGUILayout.Vector3Field("Scale", eSS.scale);
                         break;
+                }
+                
+                switch (eSS.heading)
+                {
+                    case EntitySpawnerScript.HEADING.NEUTRAL:
+                        break;
+                    case EntitySpawnerScript.HEADING.TARGETED:
+                        eSS.target = (GameObject)EditorGUILayout.ObjectField("TargetObject", eSS.target, typeof(UnityEngine.GameObject), true);
+                        break;
+                    case EntitySpawnerScript.HEADING.INWARD:
+
+                        break;
+                    case EntitySpawnerScript.HEADING.OUTWARD:
+
+                        break;
+                    
                 }
                 if (GUILayout.Button("Preview"))
                 {

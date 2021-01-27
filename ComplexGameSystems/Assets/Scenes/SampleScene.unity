@@ -313,6 +313,11 @@ PrefabInstance:
       propertyPath: dInspector
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 8335762539284952685, guid: 92c67cf852ac73641bdc7f112cd016de,
+        type: 3}
+      propertyPath: spawnShape
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8335762539284952686, guid: 92c67cf852ac73641bdc7f112cd016de,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -326,7 +331,7 @@ PrefabInstance:
     - target: {fileID: 8335762539284952686, guid: 92c67cf852ac73641bdc7f112cd016de,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 2.04
       objectReference: {fileID: 0}
     - target: {fileID: 8335762539284952686, guid: 92c67cf852ac73641bdc7f112cd016de,
         type: 3}
