@@ -85,31 +85,34 @@ public class EntitySpawnerScript : MonoBehaviour
         {
             Entity myEnt = entMan.Instantiate(entPref);
             Translation tempTranslation;
-            Transform tempTransform = entGOPref.transform;
+            //Transform tempTransform = entGOPref.transform;
+            Transform tempTransform = Instantiate(entGOPref.transform, Vector3.zero, Quaternion.identity);
+            Vector3 tempV3 = new Vector3();
 
             //entMan.AddComponentData(myEnt, new Translation { Value = new float3() });
             if (spawnShape == SHAPE.CUBE || spawnShape == SHAPE.SQUARE)
             {
-                tempTranslation = new Translation
-                {
-                    Value =
-                    (new Vector3(UnityEngine.Random.Range(-scale.x * 0.5f, scale.x * 0.5f),
+                tempV3 = (new Vector3(UnityEngine.Random.Range(-scale.x * 0.5f, scale.x * 0.5f),
                     UnityEngine.Random.Range(-scale.y * 0.5f, scale.y * 0.5f),
                     UnityEngine.Random.Range(-scale.z * 0.5f, scale.z * 0.5f))
-                    + gameObject.transform.position)
+                    + gameObject.transform.position);
+
+                tempTranslation = new Translation
+                {
+                    Value = tempV3
                 };
                 entMan.AddComponentData(myEnt, tempTranslation);
             }
             else if (spawnShape == SHAPE.SPHERE || spawnShape == SHAPE.CIRCLE)
             {
+                tempV3 = (new Vector3(UnityEngine.Random.Range(-radius * 0.5f, radius * 0.5f),
+                    UnityEngine.Random.Range(-radius * 0.5f, radius * 0.5f),
+                    UnityEngine.Random.Range(-radius * 0.5f, radius * 0.5f))
+                    + gameObject.transform.position);
                 //entMan.AddComponentData(myEnt, new Translation { Value = new float3() });
                 tempTranslation = new Translation
                 {
-                    Value =
-                    (new Vector3(UnityEngine.Random.Range(-radius * 0.5f, radius * 0.5f),
-                    UnityEngine.Random.Range(-radius * 0.5f, radius * 0.5f),
-                    UnityEngine.Random.Range(-radius * 0.5f, radius * 0.5f))
-                    + gameObject.transform.position)
+                    Value = tempV3
                 };
                 entMan.AddComponentData(myEnt, tempTranslation);
             }
@@ -128,6 +131,7 @@ public class EntitySpawnerScript : MonoBehaviour
                 case HEADING.TARGETED:
                     //This will spawn entities ("entGOPref") facing a target object ("target") 
 
+                    tempTransform.position = tempV3;
                     tempTransform.LookAt(targetGO.transform);
 
                     Quaternion qt1 = tempTransform.rotation;
