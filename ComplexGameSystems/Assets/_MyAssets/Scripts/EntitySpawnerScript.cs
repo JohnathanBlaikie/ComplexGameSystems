@@ -23,6 +23,7 @@ public class EntitySpawnerScript : MonoBehaviour
     public GameObject entGOPref;
     public GameObject targetGO;
     public Entity entPref;
+    public GameObject tempGO;
 
     //[HideInInspector]
     public float radius, length, width, maxEntity, spawnRate;
@@ -40,6 +41,9 @@ public class EntitySpawnerScript : MonoBehaviour
     {
         entMan = World.DefaultGameObjectInjectionWorld.EntityManager;
 
+        //tempGO = Instantiate(entGOPref, Vector3.zero, Quaternion.identity);
+        tempGO = new GameObject { name = "Tool GameObject"};
+        
         GameObjectConversionSettings settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
 
         settings.ConversionFlags = GameObjectConversionUtility.ConversionFlags.AssignName;
@@ -86,7 +90,7 @@ public class EntitySpawnerScript : MonoBehaviour
             Entity myEnt = entMan.Instantiate(entPref);
             Translation tempTranslation;
             //Transform tempTransform = entGOPref.transform;
-            Transform tempTransform = Instantiate(entGOPref.transform, Vector3.zero, Quaternion.identity);
+            //Transform tempTransform = Instantiate(entGOPref.transform, Vector3.zero, Quaternion.identity);
             Vector3 tempV3 = new Vector3();
 
             //entMan.AddComponentData(myEnt, new Translation { Value = new float3() });
@@ -131,10 +135,10 @@ public class EntitySpawnerScript : MonoBehaviour
                 case HEADING.TARGETED:
                     //This will spawn entities ("entGOPref") facing a target object ("target") 
 
-                    tempTransform.position = tempV3;
-                    tempTransform.LookAt(targetGO.transform);
+                    tempGO.transform.position = tempV3;
+                    tempGO.transform.LookAt(targetGO.transform);
 
-                    Quaternion qt1 = tempTransform.rotation;
+                    Quaternion qt1 = tempGO.transform.rotation;
                     entMan.AddComponentData(myEnt, new Rotation
                     {
                         Value = qt1
@@ -162,7 +166,7 @@ public class EntitySpawnerScript : MonoBehaviour
 [CustomEditor(typeof(EntitySpawnerScript))]
 public class DynamicInspector : Editor
 {
-    SerializedProperty myShape, myHeading, myScale, myTargetGO, myRadius;
+    SerializedProperty myShape, myHeading, myScale, myTargetGO, myRadius, myEntGOPref;
     override public void OnInspectorGUI()
     {
         var eSS = target as EntitySpawnerScript;
@@ -173,7 +177,7 @@ public class DynamicInspector : Editor
         myScale = serializedObject.FindProperty("scale");
         myTargetGO = serializedObject.FindProperty("targetGO");
         myRadius = serializedObject.FindProperty("radius");
-
+        myEntGOPref = serializedObject.FindProperty("entGOPref");
 
         using (var group = new EditorGUILayout.FadeGroupScope(Convert.ToSingle(eSS.isEnabled)))
         {
@@ -183,12 +187,14 @@ public class DynamicInspector : Editor
                 EditorGUI.indentLevel++;
                 eSS.maxEntity = EditorGUILayout.FloatField("Maximum Entities:", eSS.maxEntity);
                 //serializedObject.Update();
-                eSS.entGOPref = (GameObject)EditorGUILayout.ObjectField("Entity Prefab:", eSS.entGOPref, typeof(UnityEngine.Object), true);
+                //eSS.entGOPref = (GameObject)EditorGUILayout.ObjectField("Entity Prefab:", eSS.entGOPref, typeof(UnityEngine.Object), true);
                 //EditorGUILayout.PropertyField(eSS.entGOPref);
                 //serializedObject.ApplyModifiedProperties();
 
-                EditorGUILayout.PropertyField(myShape);
-                EditorGUILayout.PropertyField(myHeading);
+                
+                EditorGUILayout.PropertyField(myEntGOPref, new GUIContent("Entity GameObject"));
+                EditorGUILayout.PropertyField(myShape, new GUIContent("Spawner Shape"));
+                EditorGUILayout.PropertyField(myHeading, new GUIContent("Heading"));
 
                 switch (eSS.spawnShape)
                 {
@@ -212,15 +218,10 @@ public class DynamicInspector : Editor
                         break;
                     case EntitySpawnerScript.SHAPE.CIRCLE:
                         EditorGUILayout.PropertyField(myRadius);
-
-                        //eSS.radius = EditorGUILayout.FloatField("Radius", eSS.radius);
-                        //eSS.scale = EditorGUILayout.Vector2Field("Scale", eSS.scale);
                         break;
+
                     case EntitySpawnerScript.SHAPE.SPHERE:
                         EditorGUILayout.PropertyField(myRadius);
-
-                        //eSS.radius = EditorGUILayout.FloatField("Radius", eSS.radius);
-                        //eSS.scale = EditorGUILayout.Vector3Field("Scale", eSS.scale);
                         break;
                 }
                 
