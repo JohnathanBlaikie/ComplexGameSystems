@@ -41,7 +41,6 @@ public class EntitySpawnerScript : MonoBehaviour
     {
         entMan = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-        //tempGO = Instantiate(entGOPref, Vector3.zero, Quaternion.identity);
         tempGO = new GameObject { name = "Tool GameObject"};
         
         GameObjectConversionSettings settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
@@ -76,11 +75,6 @@ public class EntitySpawnerScript : MonoBehaviour
 
     }
 
-    public void SpawnPreview(EntitySpawnerScript.SHAPE shape)
-    {
-
-
-    }
 
     public void CreateHybridEnt()
     {
@@ -148,11 +142,27 @@ public class EntitySpawnerScript : MonoBehaviour
                     break;
                 case HEADING.INWARD:
                     //This will spawn entities facing towards the center of their spawner
+                    tempGO.transform.position = tempV3;
+                    tempGO.transform.LookAt(gameObject.transform);
 
+                    qt1 = tempGO.transform.rotation;
+                    entMan.AddComponentData(myEnt, new Rotation
+                    {
+                        Value = qt1
+                    });
                     break;
                 case HEADING.OUTWARD:
                     //This will spawn entities facing outwards from the center of their spawner
+                    tempGO.transform.position = tempV3;
+                    tempGO.transform.LookAt(tempGO.transform.position - (gameObject.transform.position - tempGO.transform.position));
 
+                    //qt1 = Quaternion.Inverse(tempGO.transform.rotation);
+
+                    qt1 = tempGO.transform.rotation;
+                    entMan.AddComponentData(myEnt, new Rotation
+                    {
+                        Value = qt1
+                    });
                     break;
 
             }
@@ -166,12 +176,13 @@ public class EntitySpawnerScript : MonoBehaviour
 [CustomEditor(typeof(EntitySpawnerScript))]
 public class DynamicInspector : Editor
 {
-    SerializedProperty myShape, myHeading, myScale, myTargetGO, myRadius, myEntGOPref;
+    SerializedProperty myShape, myHeading, myScale, myTargetGO, myRadius, myEntGOPref, myMaxEntities, amIEnabled;
     override public void OnInspectorGUI()
     {
         var eSS = target as EntitySpawnerScript;
 
-        eSS.isEnabled = EditorGUILayout.Toggle("Enable Spawning:", eSS.isEnabled);
+        amIEnabled = serializedObject.FindProperty("isEnabled");
+        myMaxEntities = serializedObject.FindProperty("maxEntity");
         myShape = serializedObject.FindProperty("spawnShape");
         myHeading = serializedObject.FindProperty("heading");
         myScale = serializedObject.FindProperty("scale");
@@ -179,19 +190,17 @@ public class DynamicInspector : Editor
         myRadius = serializedObject.FindProperty("radius");
         myEntGOPref = serializedObject.FindProperty("entGOPref");
 
+
         using (var group = new EditorGUILayout.FadeGroupScope(Convert.ToSingle(eSS.isEnabled)))
         {
             eSS.dInspector = this;
+
+            EditorGUILayout.PropertyField(amIEnabled, new GUIContent("Enable Spawner"));
             if (group.visible == true)
             {
                 EditorGUI.indentLevel++;
-                eSS.maxEntity = EditorGUILayout.FloatField("Maximum Entities:", eSS.maxEntity);
-                //serializedObject.Update();
-                //eSS.entGOPref = (GameObject)EditorGUILayout.ObjectField("Entity Prefab:", eSS.entGOPref, typeof(UnityEngine.Object), true);
-                //EditorGUILayout.PropertyField(eSS.entGOPref);
-                //serializedObject.ApplyModifiedProperties();
-
-                
+                //eSS.maxEntity = EditorGUILayout.FloatField("Maximum Entities:", eSS.maxEntity);
+                EditorGUILayout.PropertyField(myMaxEntities, new GUIContent("Max Entities"));
                 EditorGUILayout.PropertyField(myEntGOPref, new GUIContent("Entity GameObject"));
                 EditorGUILayout.PropertyField(myShape, new GUIContent("Spawner Shape"));
                 EditorGUILayout.PropertyField(myHeading, new GUIContent("Heading"));
@@ -201,21 +210,16 @@ public class DynamicInspector : Editor
                     case EntitySpawnerScript.SHAPE.NONE:
                         break;
                     case EntitySpawnerScript.SHAPE.POINT:
-
                         break;
+
                     case EntitySpawnerScript.SHAPE.SQUARE:
-                        //EditorGUILayout.Vector2Field(myScale);
-                        //eSS.scale = myScale;
                         EditorGUILayout.PropertyField(myScale);
-                       
-                        //eSS.scale = EditorGUILayout.Vector2Field("Scale", eSS.scale);
-
                         break;
+
                     case EntitySpawnerScript.SHAPE.CUBE:
                         EditorGUILayout.PropertyField(myScale);
-                        //eSS.scale = EditorGUILayout.Vector3Field("Scale", eSS.scale);
-
                         break;
+
                     case EntitySpawnerScript.SHAPE.CIRCLE:
                         EditorGUILayout.PropertyField(myRadius);
                         break;
@@ -241,14 +245,14 @@ public class DynamicInspector : Editor
                         break;
                     
                 }
-                if (GUILayout.Button("Preview"))
+                if (GUILayout.Button("Manual Spawn"))
                 {
-                    eSS.SpawnPreview(eSS.spawnShape);
                     eSS.CreateHybridEnt();
                 }
-                serializedObject.ApplyModifiedProperties();
+                
 
             }
+            serializedObject.ApplyModifiedProperties();
         }
 
        
