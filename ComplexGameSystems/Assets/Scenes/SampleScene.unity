@@ -411,7 +411,7 @@ PrefabInstance:
     - target: {fileID: 8335762539284952685, guid: 92c67cf852ac73641bdc7f112cd016de,
         type: 3}
       propertyPath: scale.z
-      value: 3
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8335762539284952685, guid: 92c67cf852ac73641bdc7f112cd016de,
         type: 3}
@@ -426,12 +426,12 @@ PrefabInstance:
     - target: {fileID: 8335762539284952685, guid: 92c67cf852ac73641bdc7f112cd016de,
         type: 3}
       propertyPath: scale.x
-      value: 3
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8335762539284952685, guid: 92c67cf852ac73641bdc7f112cd016de,
         type: 3}
       propertyPath: scale.y
-      value: 3
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8335762539284952685, guid: 92c67cf852ac73641bdc7f112cd016de,
         type: 3}
@@ -452,6 +452,16 @@ PrefabInstance:
     - target: {fileID: 8335762539284952685, guid: 92c67cf852ac73641bdc7f112cd016de,
         type: 3}
       propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8335762539284952685, guid: 92c67cf852ac73641bdc7f112cd016de,
+        type: 3}
+      propertyPath: maxEntity
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 8335762539284952685, guid: 92c67cf852ac73641bdc7f112cd016de,
+        type: 3}
+      propertyPath: spawnRate
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8335762539284952686, guid: 92c67cf852ac73641bdc7f112cd016de,
