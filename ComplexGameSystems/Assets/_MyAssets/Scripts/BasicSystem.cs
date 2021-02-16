@@ -5,38 +5,38 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Entities;
 
-
 public class BasicSystem : ComponentSystem
 {
-    //public List<EntitySpawnerScript> eSSList = new List<EntitySpawnerScript>();
+    //Headings are overwritten by OnUpdate's search, fix this asap.
 
-    //EntitySpawnerScript eSS;
-    //protected override void OnStartRunning()
-    //{
-    //    eSSList
-    //}
-
+    GameObject targetGo;
+    float3 up = new float3(0, 1, 0);
+    float3 newRotationVector;
+        
+    protected override void OnStartRunning()
+    {
+        targetGo = GameObject.FindObjectOfType<EntitySpawnerScript>().targetGO;
+        base.OnStartRunning();
+    }
     protected override void OnUpdate()
     {
-        //Entities.WithAll<EntitySpawnerScript.HEADING>().ForEach((ref Transform tran, ref EntitySpawnerScript.HEADING entityHeading) =>
+        //float3 targetPos = new float3(targetGo.transform.position.x, targetGo.transform.position.y, targetGo.transform.position.z);
+        //Entities.WithAll<AmTargetted>().ForEach((ref Translation tran, ref Rotation rota) =>
         //{
-            //if (entityHeading == EntitySpawnerScript.HEADING.TARGETED)
-            //{
-                //tran.LookAt(EntitySpawnerScript.targetGO);
-            //}
+        //    float3 newRotationVector = tran.Value - targetPos;
+        //    rota.Value = quaternion.LookRotationSafe(newRotationVector, up);
         //});
-
-        //switch (eSS.heading)
-        //{
-            //case EntitySpawnerScript.HEADING.TARGETED:
-                ////Entities.ForEach(())//Ask Jon about how to cull the effected entities to just the ones managed by each instance.
-                
-                //break;
-        //}
-        //Entities.ForEach((ref Translation tran) =>
-        //{
-        //    float zPos = math.sin((float)Time.ElapsedTime);
-        //    tran.Value = new float3(tran.Value.x, tran.Value.y, zPos);
-        //});
+        float3 targetPos = new float3(targetGo.transform.position.x, targetGo.transform.position.y, targetGo.transform.position.z);
+        Entities.WithAll<IsTargeted>().ForEach((ref Translation tran, ref Rotation rota, ref IsTargeted entityHeading) =>
+        {
+            //TODO: Factor out non-targeted headings
+            if (entityHeading.Value == true)
+            {
+                newRotationVector = targetPos - tran.Value - ((tran.Value) - targetPos);
+                rota.Value = quaternion.LookRotationSafe(newRotationVector, up);
+            }
+               // tran.LookAt(targetGo.transform);
+        });
     }
 }
+

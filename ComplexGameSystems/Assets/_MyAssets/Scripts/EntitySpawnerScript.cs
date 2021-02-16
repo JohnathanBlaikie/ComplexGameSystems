@@ -29,6 +29,7 @@ public class EntitySpawnerScript : MonoBehaviour
     //[HideInInspector]
     public float radius, length, width, spawnRate, newSpawnTime;
     public int maxEntity, loopCounter;
+    public bool updateHeading;
     public Vector3 scale;
 
     public DynamicInspector dInspector;
@@ -159,7 +160,59 @@ public class EntitySpawnerScript : MonoBehaviour
 
                         break;
                 }
+                //TODO: Find a way to apply properties to HeadingScript portion of entities.
+                //if (updateHeading)
+                //{
+                //    switch (heading)
+                //    {
+                //        case HEADING.NEUTRAL:
 
+                //            break;
+                //        case HEADING.TARGETED:
+                //            //This will spawn entities ("entGOPref") facing a target object ("target") 
+                //            tempGO.transform.position = tempV3;
+                //            tempGO.transform.LookAt(targetGO.transform);
+
+                //            Quaternion qt1 = tempGO.transform.rotation;
+                //            entMan.AddComponentData(myEnt, new Rotation
+                //            {
+                //                Value = qt1
+                //            });
+                //            entMan.AddComponentData<IsTargeted>(myEnt, new IsTargeted { Value = true });
+
+                //            //entMan.AddComponentData(myEnt, new HEADING
+                //            //{
+                //            //    //Value = HEADING.TARGETED
+                //            //});
+
+                //            break;
+                //        case HEADING.INWARD:
+                //            //This will spawn entities facing towards the center of their spawner
+                //            tempGO.transform.position = tempV3;
+                //            tempGO.transform.LookAt(gameObject.transform);
+
+                //            qt1 = tempGO.transform.rotation;
+                //            entMan.AddComponentData(myEnt, new Rotation
+                //            {
+                //                Value = qt1
+                //            });
+
+                //            break;
+                //        case HEADING.OUTWARD:
+                //            //This will spawn entities facing outwards from the center of their spawner
+                //            tempGO.transform.position = tempV3;
+                //            tempGO.transform.LookAt(tempGO.transform.position - (gameObject.transform.position - tempGO.transform.position));
+                //            qt1 = tempGO.transform.rotation;
+                //            entMan.AddComponentData(myEnt, new Rotation
+                //            {
+                //                Value = qt1
+                //            });
+
+                //            break;
+                //    }
+                //}
+                //else
+                //{
                 switch (heading)
                 {
                     case HEADING.NEUTRAL:
@@ -177,6 +230,10 @@ public class EntitySpawnerScript : MonoBehaviour
                             Value = qt1
                         });
 
+                        if (updateHeading)
+                        {
+                            entMan.AddComponentData<IsTargeted>(myEnt, new IsTargeted { Value = true });
+                        }
                         break;
                     case HEADING.INWARD:
                         //This will spawn entities facing towards the center of their spawner
@@ -188,6 +245,8 @@ public class EntitySpawnerScript : MonoBehaviour
                         {
                             Value = qt1
                         });
+                        entMan.AddComponentData<IsTargeted>(myEnt, new IsTargeted { Value = false });
+
                         break;
                     case HEADING.OUTWARD:
                         //This will spawn entities facing outwards from the center of their spawner
@@ -198,6 +257,8 @@ public class EntitySpawnerScript : MonoBehaviour
                         {
                             Value = qt1
                         });
+                        entMan.AddComponentData<IsTargeted>(myEnt, new IsTargeted { Value = false });
+
                         break;
 
                 }
@@ -214,7 +275,7 @@ public class EntitySpawnerScript : MonoBehaviour
 public class DynamicInspector : Editor
 {
     SerializedProperty myShape, myHeading, myScale, myTargetGO,
-        myRadius, myEntGOPref, myMaxEntities, amIEnabled, mySpawnRate;
+        myRadius, myEntGOPref, myMaxEntities, amIEnabled, mySpawnRate, myUpdateHeading;
     override public void OnInspectorGUI()
     {
         var eSS = target as EntitySpawnerScript;
@@ -228,6 +289,7 @@ public class DynamicInspector : Editor
         myTargetGO = serializedObject.FindProperty("targetGO");
         myRadius = serializedObject.FindProperty("radius");
         myEntGOPref = serializedObject.FindProperty("entGOPref");
+        myUpdateHeading = serializedObject.FindProperty("updateHeading");
 
 
         using (var group = new EditorGUILayout.FadeGroupScope(Convert.ToSingle(eSS.isEnabled)))
@@ -244,6 +306,7 @@ public class DynamicInspector : Editor
                 EditorGUILayout.PropertyField(mySpawnRate, new GUIContent("Spawn Interval Delay"));
                 EditorGUILayout.PropertyField(myShape, new GUIContent("Spawner Shape"));
                 EditorGUILayout.PropertyField(myHeading, new GUIContent("Heading"));
+
 
                 switch (eSS.spawnShape)
                 {
@@ -276,6 +339,8 @@ public class DynamicInspector : Editor
                     case EntitySpawnerScript.HEADING.TARGETED:
                         //eSS.target = (GameObject)EditorGUILayout.ObjectField("TargetObject", eSS.target, typeof(UnityEngine.GameObject), true);
                         EditorGUILayout.PropertyField(myTargetGO);
+                        EditorGUILayout.PropertyField(myUpdateHeading, new GUIContent("Update Heading"));
+
                         break;
                     case EntitySpawnerScript.HEADING.INWARD:
 
@@ -301,22 +366,3 @@ public class DynamicInspector : Editor
 
   
 }
-
-//public class BasicSystem : ComponentSystem
-//{
-//    EntitySpawnerScript eSS;
-//    protected override void OnUpdate()
-//    {
-//        switch (eSS.heading)
-//        {
-//            case EntitySpawnerScript.HEADING.TARGETED:
-//                Entities.ForEach(())//Ask Jon about how to cull the effected entities to just the ones managed by each instance.
-//                break;
-//        }
-//        Entities.ForEach((ref Translation tran) =>
-//        {
-//            float zPos = math.sin((float)Time.ElapsedTime);
-//            tran.Value = new float3(tran.Value.x, tran.Value.y, zPos);
-//        });
-//    }
-//}
